@@ -1,0 +1,35 @@
+{
+  "app-id": "io.github.dkguy.daw",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "24.08",
+  "sdk": "org.freedesktop.Sdk",
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.rust-stable"
+  ],
+  "command": "daw",
+  "finish-args": [
+    "--filesystem=home"
+  ],
+  "build-options": {
+    "append-path": "/usr/lib/sdk/rust-stable/bin",
+    "env": {
+      "CARGO_HOME": "/run/build/daw/cargo"
+    }
+  },
+  "modules": [
+    {
+      "name": "daw",
+      "buildsystem": "simple",
+      "build-commands": [
+        "cargo build --release --offline",
+        "install -D target/release/daw /app/bin/daw"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "."
+        }
+      ]
+    }
+  ]
+}

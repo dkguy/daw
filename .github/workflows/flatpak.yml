@@ -1,0 +1,39 @@
+name: Build Flatpak
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install Flatpak tooling
+        run: sudo apt-get update && sudo apt-get install --yes flatpak flatpak-builder
+
+      - name: Install Flatpak SDK
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive flathub \
+            org.freedesktop.Platform//24.08 \
+            org.freedesktop.Sdk//24.08 \
+            org.freedesktop.Sdk.Extension.rust-stable//24.08
+
+      - name: Build Flatpak bundle
+        run: |
+          flatpak-builder --user --force-clean --repo=repo build-dir io.github.dkguy.daw.json
+          flatpak build-bundle repo daw.flatpak io.github.dkguy.daw stable
+
+      - name: Upload Flatpak bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: daw-flatpak
+          path: daw.flatpak
+          if-no-files-found: error
